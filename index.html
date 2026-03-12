@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Calculator</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="calculator" aria-label="Calculator">
+        <div class="display" aria-live="polite">
+          <p class="display__history" data-history>0</p>
+          <output class="display__value" data-display>0</output>
+        </div>
+
+        <div class="keys" role="group" aria-label="Calculator keys">
+          <button type="button" class="key key--function" data-action="clear">AC</button>
+          <button type="button" class="key key--function" data-action="toggle-sign">+/-</button>
+          <button type="button" class="key key--function" data-action="percent">%</button>
+          <button type="button" class="key key--operator" data-action="operator" data-value="/">/</button>
+
+          <button type="button" class="key" data-action="digit" data-value="7">7</button>
+          <button type="button" class="key" data-action="digit" data-value="8">8</button>
+          <button type="button" class="key" data-action="digit" data-value="9">9</button>
+          <button type="button" class="key key--operator" data-action="operator" data-value="*">x</button>
+
+          <button type="button" class="key" data-action="digit" data-value="4">4</button>
+          <button type="button" class="key" data-action="digit" data-value="5">5</button>
+          <button type="button" class="key" data-action="digit" data-value="6">6</button>
+          <button type="button" class="key key--operator" data-action="operator" data-value="-">-</button>
+
+          <button type="button" class="key" data-action="digit" data-value="1">1</button>
+          <button type="button" class="key" data-action="digit" data-value="2">2</button>
+          <button type="button" class="key" data-action="digit" data-value="3">3</button>
+          <button type="button" class="key key--operator" data-action="operator" data-value="+">+</button>
+
+          <button type="button" class="key key--wide" data-action="digit" data-value="0">0</button>
+          <button type="button" class="key" data-action="decimal">.</button>
+          <button type="button" class="key key--operator" data-action="equals">=</button>
+        </div>
+
+        <p class="hint">Supports mouse clicks and keyboard input.</p>
+      </section>
+    </main>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
