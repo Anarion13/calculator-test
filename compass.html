@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auxiliary Navigation Compass</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        --panel-light: #d4cfbf;
+        --panel-mid: #9b978c;
+        --panel-dark: #646158;
+        --screen: #c6ffd1;
+        --screen-dim: #8ad998;
+        --screen-shadow: rgba(45, 112, 58, 0.45);
+        --amber: #e7ab43;
+        --amber-bright: #ffd597;
+        --ink: #171914;
+        --muted-ink: #56544d;
+        --heading: 0deg;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        position: relative;
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
+        overflow-x: hidden;
+        color: #f2efe5;
+        background:
+          radial-gradient(circle at top, rgba(120, 184, 110, 0.08), transparent 34%),
+          linear-gradient(180deg, #0d1011 0%, #050607 100%);
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      body::before {
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+        background-size: 3rem 3rem;
+        mask-image: radial-gradient(circle at center, black 40%, transparent 92%);
+      }
+
+      body::after {
+        background:
+          radial-gradient(circle at 20% 15%, rgba(231, 171, 67, 0.12), transparent 18%),
+          radial-gradient(circle at 80% 0%, rgba(121, 230, 149, 0.08), transparent 22%);
+      }
+
+      .console {
+        position: relative;
+        z-index: 1;
+        width: min(100%, 56rem);
+        overflow: hidden;
+        padding: 1.7rem 1.4rem 1.35rem;
+        border-radius: 0.9rem;
+        background: linear-gradient(145deg, var(--panel-light), var(--panel-mid) 62%, var(--panel-dark));
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow:
+          0 28px 60px rgba(0, 0, 0, 0.45),
+          inset 0 1px 0 rgba(255, 255, 255, 0.22),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.22);
+      }
+
+      .console::before,
+      .console::after {
+        content: "";
+        position: absolute;
+        pointer-events: none;
+      }
+
+      .console::before {
+        inset: 0 0 auto;
+        height: 0.45rem;
+        background: repeating-linear-gradient(
+          135deg,
+          rgba(231, 171, 67, 0.96) 0 14px,
+          rgba(63, 50, 31, 0.96) 14px 28px
+        );
+      }
+
+      .console::after {
+        inset: 0.55rem;
+        border: 1px solid rgba(27, 28, 25, 0.16);
+        border-radius: 0.6rem;
+      }
+
+      .console__header,
+      .screen-shell,
+      .grid,
+      .hint {
+        position: relative;
+        z-index: 1;
+      }
+
+      .console__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 0.2rem 0.2rem 0.8rem;
+        border-bottom: 1px solid rgba(23, 25, 20, 0.18);
+      }
+
+      .console__eyebrow {
+        margin: 0 0 0.4rem;
+        color: var(--muted-ink);
+        font-size: 0.68rem;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+      }
+
+      .console__title {
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(1.2rem, 3vw, 1.6rem);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .status-lights {
+        display: flex;
+        gap: 0.45rem;
+        padding-top: 0.15rem;
+      }
+
+      .status-lights__dot {
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 999px;
+        background: #5b6058;
+        box-shadow:
+          inset 0 1px 2px rgba(255, 255, 255, 0.12),
+          inset 0 -1px 2px rgba(0, 0, 0, 0.35);
+      }
+
+      .status-lights__dot--active {
+        background: radial-gradient(circle at 35% 35%, var(--amber-bright), var(--amber) 60%, #7b4607 100%);
+        box-shadow:
+          0 0 14px rgba(231, 171, 67, 0.65),
+          inset 0 1px 2px rgba(255, 255, 255, 0.25);
+      }
+
+      .screen-shell {
+        padding: 0.75rem;
+        border-radius: 0.65rem;
+        background: linear-gradient(180deg, rgba(24, 26, 22, 0.94), rgba(8, 10, 8, 0.98));
+        border: 1px solid rgba(69, 74, 66, 0.95);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.04),
+          0 12px 30px rgba(0, 0, 0, 0.22);
+      }
+
+      .screen-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.55rem;
+        color: #b9b083;
+        font-size: 0.62rem;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+      }
+
+      .grid {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.9fr);
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 0.3rem;
+        background:
+          radial-gradient(circle at top, rgba(122, 243, 144, 0.12), transparent 55%),
+          linear-gradient(180deg, rgba(9, 30, 13, 0.96), rgba(5, 14, 7, 0.98));
+        border: 1px solid rgba(111, 196, 126, 0.38);
+        overflow: hidden;
+        box-shadow:
+          inset 0 0 32px rgba(7, 22, 10, 0.85),
+          0 0 26px var(--screen-shadow);
+      }
+
+      .grid::before,
+      .grid::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .grid::before {
+        background: repeating-linear-gradient(
+          180deg,
+          rgba(198, 255, 209, 0.09) 0 1px,
+          transparent 1px 4px
+        );
+        opacity: 0.45;
+      }
+
+      .grid::after {
+        background:
+          linear-gradient(90deg, transparent 0, rgba(255, 255, 255, 0.05) 50%, transparent 100%),
+          radial-gradient(circle at center, transparent 52%, rgba(0, 0, 0, 0.28) 100%);
+      }
+
+      .panel {
+        position: relative;
+        z-index: 1;
+      }
+
+      .readout-bar {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.7rem;
+        margin-bottom: 1rem;
+      }
+
+      .metric {
+        padding: 0.75rem 0.8rem;
+        border: 1px solid rgba(111, 196, 126, 0.3);
+        background: rgba(7, 18, 10, 0.5);
+      }
+
+      .metric__label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-size: 0.62rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: rgba(198, 255, 209, 0.68);
+      }
+
+      .metric__value {
+        font-size: clamp(1.3rem, 3vw, 2rem);
+        color: var(--screen);
+        letter-spacing: 0.12em;
+        text-shadow: 0 0 14px rgba(138, 217, 152, 0.28);
+      }
+
+      .compass-shell {
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        min-height: 26rem;
+        border: 1px solid rgba(111, 196, 126, 0.3);
+        background:
+          radial-gradient(circle at center, rgba(112, 198, 125, 0.12), transparent 48%),
+          rgba(7, 18, 10, 0.45);
+      }
+
+      .compass {
+        position: relative;
+        width: min(100%, 25rem);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 1px solid rgba(198, 255, 209, 0.35);
+        background:
+          radial-gradient(circle at center, rgba(198, 255, 209, 0.06), transparent 0 44%, rgba(198, 255, 209, 0.14) 44.4%, transparent 45%),
+          radial-gradient(circle at center, transparent 0 58%, rgba(198, 255, 209, 0.12) 58.5%, transparent 59%),
+          conic-gradient(
+            from -90deg,
+            rgba(198, 255, 209, 0.28) 0deg 1deg,
+            transparent 1deg 14deg,
+            rgba(198, 255, 209, 0.18) 14deg 15deg,
+            transparent 15deg 29deg,
+            rgba(198, 255, 209, 0.18) 29deg 30deg,
+            transparent 30deg 44deg,
+            rgba(198, 255, 209, 0.18) 44deg 45deg,
+            transparent 45deg 59deg,
+            rgba(198, 255, 209, 0.18) 59deg 60deg,
+            transparent 60deg 74deg,
+            rgba(198, 255, 209, 0.18) 74deg 75deg,
+            transparent 75deg 89deg,
+            rgba(198, 255, 209, 0.28) 89deg 90deg,
+            transparent 90deg 104deg,
+            rgba(198, 255, 209, 0.18) 104deg 105deg,
+            transparent 105deg 119deg,
+            rgba(198, 255, 209, 0.18) 119deg 120deg,
+            transparent 120deg 134deg,
+            rgba(198, 255, 209, 0.18) 134deg 135deg,
+            transparent 135deg 149deg,
+            rgba(198, 255, 209, 0.18) 149deg 150deg,
+            transparent 150deg 164deg,
+            rgba(198, 255, 209, 0.18) 164deg 165deg,
+            transparent 165deg 179deg,
+            rgba(198, 255, 209, 0.28) 179deg 180deg,
+            transparent 180deg 194deg,
+            rgba(198, 255, 209, 0.18) 194deg 195deg,
+            transparent 195deg 209deg,
+            rgba(198, 255, 209, 0.18) 209deg 210deg,
+            transparent 210deg 224deg,
+            rgba(198, 255, 209, 0.18) 224deg 225deg,
+            transparent 225deg 239deg,
+            rgba(198, 255, 209, 0.18) 239deg 240deg,
+            transparent 240deg 254deg,
+            rgba(198, 255, 209, 0.18) 254deg 255deg,
+            transparent 255deg 269deg,
+            rgba(198, 255, 209, 0.28) 269deg 270deg,
+            transparent 270deg 284deg,
+            rgba(198, 255, 209, 0.18) 284deg 285deg,
+            transparent 285deg 299deg,
+            rgba(198, 255, 209, 0.18) 299deg 300deg,
+            transparent 300deg 314deg,
+            rgba(198, 255, 209, 0.18) 314deg 315deg,
+            transparent 315deg 329deg,
+            rgba(198, 255, 209, 0.18) 329deg 330deg,
+            transparent 330deg 344deg,
+            rgba(198, 255, 209, 0.18) 344deg 345deg,
+            transparent 345deg 359deg,
+            rgba(198, 255, 209, 0.28) 359deg 360deg
+          ),
+          radial-gradient(circle at center, rgba(7, 22, 10, 0.9), rgba(5, 14, 7, 0.96));
+        box-shadow:
+          inset 0 0 30px rgba(0, 0, 0, 0.7),
+          0 0 40px rgba(45, 112, 58, 0.22);
+      }
+
+      .compass::before,
+      .compass::after {
+        content: "";
+        position: absolute;
+        inset: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+      }
+
+      .compass::before {
+        width: 88%;
+        height: 88%;
+        border: 1px solid rgba(198, 255, 209, 0.18);
+      }
+
+      .compass::after {
+        width: 16%;
+        height: 16%;
+        background:
+          radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.12), transparent 35%),
+          linear-gradient(180deg, rgba(27, 33, 27, 0.95), rgba(8, 10, 9, 0.98));
+        border: 1px solid rgba(198, 255, 209, 0.3);
+        box-shadow: 0 0 18px rgba(138, 217, 152, 0.16);
+      }
+
+      .compass__ring {
+        position: absolute;
+        inset: 0;
+        transform: rotate(calc(var(--heading) * -1));
+        transition: transform 180ms ease-out;
+      }
+
+      .cardinal,
+      .bearing {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        color: var(--screen);
+        text-shadow: 0 0 12px rgba(138, 217, 152, 0.22);
+      }
+
+      .cardinal {
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        transform:
+          translate(-50%, -50%)
+          rotate(var(--angle))
+          translateY(-10.6rem)
+          rotate(calc(var(--angle) * -1));
+      }
+
+      .bearing {
+        font-size: 0.65rem;
+        letter-spacing: 0.16em;
+        color: rgba(198, 255, 209, 0.75);
+        transform:
+          translate(-50%, -50%)
+          rotate(var(--angle))
+          translateY(-8.6rem)
+          rotate(calc(var(--angle) * -1));
+      }
+
+      .bearing--major {
+        font-size: 0.8rem;
+        color: var(--amber-bright);
+      }
+
+      .compass__crosshair,
+      .compass__needle,
+      .compass__north-mark {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .compass__crosshair {
+        width: 78%;
+        height: 78%;
+        border-radius: 50%;
+        border: 1px dashed rgba(198, 255, 209, 0.14);
+      }
+
+      .compass__crosshair::before,
+      .compass__crosshair::after {
+        content: "";
+        position: absolute;
+        background: rgba(198, 255, 209, 0.12);
+      }
+
+      .compass__crosshair::before {
+        inset: 50% 0 auto;
+        height: 1px;
+        transform: translateY(-50%);
+      }
+
+      .compass__crosshair::after {
+        inset: 0 auto 0 50%;
+        width: 1px;
+        transform: translateX(-50%);
+      }
+
+      .compass__north-mark {
+        width: 0;
+        height: 0;
+        margin-top: -11.45rem;
+        border-left: 0.8rem solid transparent;
+        border-right: 0.8rem solid transparent;
+        border-bottom: 1.4rem solid var(--amber);
+        filter: drop-shadow(0 0 8px rgba(231, 171, 67, 0.5));
+      }
+
+      .compass__needle {
+        width: 10%;
+        height: 82%;
+        transform: translate(-50%, -50%) rotate(var(--heading));
+        transition: transform 180ms ease-out;
+      }
+
+      .compass__needle::before,
+      .compass__needle::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        clip-path: polygon(50% 0, 100% 100%, 50% 83%, 0 100%);
+      }
+
+      .compass__needle::before {
+        top: 0;
+        width: 100%;
+        height: 50%;
+        background: linear-gradient(180deg, var(--amber-bright), var(--amber) 68%, #7d4610 100%);
+        filter: drop-shadow(0 0 10px rgba(231, 171, 67, 0.38));
+      }
+
+      .compass__needle::after {
+        bottom: 0;
+        width: 70%;
+        height: 42%;
+        background: linear-gradient(180deg, rgba(198, 255, 209, 0.28), rgba(198, 255, 209, 0.75) 55%, rgba(198, 255, 209, 0.14) 100%);
+      }
+
+      .controls {
+        display: grid;
+        gap: 0.9rem;
+        align-content: start;
+      }
+
+      .module {
+        padding: 0.9rem;
+        border: 1px solid rgba(111, 196, 126, 0.3);
+        background: rgba(7, 18, 10, 0.5);
+      }
+
+      .module__label {
+        margin: 0 0 0.7rem;
+        font-size: 0.68rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: rgba(198, 255, 209, 0.68);
+      }
+
+      .slider-row {
+        display: grid;
+        gap: 0.55rem;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        margin: 0;
+        accent-color: var(--amber);
+      }
+
+      .preset-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+      }
+
+      .preset {
+        min-height: 3rem;
+        padding: 0.6rem;
+        border: 1px solid #897c66;
+        border-radius: 0.45rem;
+        font: inherit;
+        font-size: 0.86rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #ffe3ae;
+        background: linear-gradient(180deg, #676155 0%, #433f38 56%, #292621 100%);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          inset 0 -2px 0 rgba(0, 0, 0, 0.42),
+          0 6px 10px rgba(0, 0, 0, 0.18);
+        cursor: pointer;
+        transition: transform 120ms ease, filter 120ms ease;
+      }
+
+      .preset:hover,
+      .preset:focus-visible {
+        transform: translateY(-1px);
+        filter: brightness(1.08);
+      }
+
+      .preset:focus-visible {
+        outline: 2px solid rgba(255, 213, 151, 0.8);
+        outline-offset: 2px;
+      }
+
+      .status-list {
+        display: grid;
+        gap: 0.55rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .status-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        font-size: 0.8rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .status-chip {
+        padding: 0.22rem 0.5rem;
+        border: 1px solid rgba(231, 171, 67, 0.35);
+        color: #ffe3ae;
+        background: rgba(90, 56, 18, 0.42);
+      }
+
+      .hint {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.7rem;
+        margin: 1rem 0 0;
+        padding: 0.8rem 0.9rem;
+        border-left: 0.25rem solid #c58a2d;
+        background: rgba(24, 25, 21, 0.08);
+        color: #312f29;
+        font-size: 0.78rem;
+        line-height: 1.5;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .hint__label {
+        flex: 0 0 auto;
+        color: #5e4615;
+        font-weight: 700;
+      }
+
+      @media (max-width: 780px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .compass-shell {
+          min-height: 20rem;
+        }
+
+        .readout-bar {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 0.8rem;
+        }
+
+        .console {
+          padding: 1.4rem 1rem 1rem;
+        }
+
+        .console__header {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .status-lights {
+          justify-content: flex-end;
+        }
+
+        .preset-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hint {
+          flex-direction: column;
+          gap: 0.35rem;
+        }
+
+        .cardinal {
+          transform:
+            translate(-50%, -50%)
+            rotate(var(--angle))
+            translateY(-8.8rem)
+            rotate(calc(var(--angle) * -1));
+        }
+
+        .bearing {
+          transform:
+            translate(-50%, -50%)
+            rotate(var(--angle))
+            translateY(-7rem)
+            rotate(calc(var(--angle) * -1));
+        }
+
+        .compass__north-mark {
+          margin-top: -9.55rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="console">
+      <header class="console__header">
+        <div>
+          <p class="console__eyebrow">Weyland-Yutani // navigation subsystem</p>
+          <h1 class="console__title">Auxiliary Navigation Compass</h1>
+        </div>
+
+        <div class="status-lights" aria-label="System status indicators">
+          <span class="status-lights__dot status-lights__dot--active"></span>
+          <span class="status-lights__dot status-lights__dot--active"></span>
+          <span class="status-lights__dot"></span>
+        </div>
+      </header>
+
+      <section class="screen-shell" aria-label="Compass console">
+        <div class="screen-labels" aria-hidden="true">
+          <span>NAV ACTIVE</span>
+          <span>SYS 937</span>
+        </div>
+
+        <div class="grid">
+          <div class="panel">
+            <div class="readout-bar">
+              <div class="metric">
+                <span class="metric__label">Heading</span>
+                <strong class="metric__value" data-heading-value>000 deg</strong>
+              </div>
+
+              <div class="metric">
+                <span class="metric__label">Quadrant</span>
+                <strong class="metric__value" data-cardinal-value>N</strong>
+              </div>
+
+              <div class="metric">
+                <span class="metric__label">Mode</span>
+                <strong class="metric__value">Manual</strong>
+              </div>
+            </div>
+
+            <div class="compass-shell">
+              <div class="compass" aria-label="Compass display">
+                <div class="compass__ring" data-ring>
+                  <span class="cardinal" style="--angle: 0deg">N</span>
+                  <span class="cardinal" style="--angle: 90deg">E</span>
+                  <span class="cardinal" style="--angle: 180deg">S</span>
+                  <span class="cardinal" style="--angle: 270deg">W</span>
+
+                  <span class="bearing bearing--major" style="--angle: 45deg">045</span>
+                  <span class="bearing bearing--major" style="--angle: 135deg">135</span>
+                  <span class="bearing bearing--major" style="--angle: 225deg">225</span>
+                  <span class="bearing bearing--major" style="--angle: 315deg">315</span>
+
+                  <span class="bearing" style="--angle: 30deg">030</span>
+                  <span class="bearing" style="--angle: 60deg">060</span>
+                  <span class="bearing" style="--angle: 120deg">120</span>
+                  <span class="bearing" style="--angle: 150deg">150</span>
+                  <span class="bearing" style="--angle: 210deg">210</span>
+                  <span class="bearing" style="--angle: 240deg">240</span>
+                  <span class="bearing" style="--angle: 300deg">300</span>
+                  <span class="bearing" style="--angle: 330deg">330</span>
+                </div>
+
+                <div class="compass__crosshair" aria-hidden="true"></div>
+                <div class="compass__north-mark" aria-hidden="true"></div>
+                <div class="compass__needle" data-needle aria-hidden="true"></div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="panel controls">
+            <section class="module" aria-labelledby="heading-control-label">
+              <h2 class="module__label" id="heading-control-label">Heading control</h2>
+
+              <div class="slider-row">
+                <label for="heading-slider">Adjust bearing</label>
+                <input id="heading-slider" type="range" min="0" max="359" step="1" value="0" data-heading-slider />
+              </div>
+            </section>
+
+            <section class="module" aria-labelledby="preset-label">
+              <h2 class="module__label" id="preset-label">Preset vectors</h2>
+
+              <div class="preset-grid">
+                <button class="preset" type="button" data-heading-target="0">North lock</button>
+                <button class="preset" type="button" data-heading-target="90">East drift</button>
+                <button class="preset" type="button" data-heading-target="180">South arc</button>
+                <button class="preset" type="button" data-heading-target="270">West return</button>
+                <button class="preset" type="button" data-heading-target="45">Beacon A</button>
+                <button class="preset" type="button" data-heading-target="315">Beacon B</button>
+              </div>
+            </section>
+
+            <section class="module" aria-labelledby="status-label">
+              <h2 class="module__label" id="status-label">Telemetry</h2>
+
+              <ul class="status-list">
+                <li>
+                  <span>Gyro</span>
+                  <span class="status-chip">Online</span>
+                </li>
+                <li>
+                  <span>Signal</span>
+                  <span class="status-chip">Nominal</span>
+                </li>
+                <li>
+                  <span>Calibration</span>
+                  <span class="status-chip">Stable</span>
+                </li>
+              </ul>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <p class="hint">
+        <span class="hint__label">Input</span>
+        Drag the bearing control or use preset vectors to rotate the compass UI.
+      </p>
+    </main>
+
+    <script>
+      const slider = document.querySelector("[data-heading-slider]");
+      const headingValue = document.querySelector("[data-heading-value]");
+      const cardinalValue = document.querySelector("[data-cardinal-value]");
+      const root = document.documentElement;
+      const presets = document.querySelectorAll("[data-heading-target]");
+
+      function normalizeHeading(value) {
+        return ((Number(value) % 360) + 360) % 360;
+      }
+
+      function getCardinalLabel(heading) {
+        const labels = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+        return labels[Math.round(heading / 45) % labels.length];
+      }
+
+      function setHeading(value) {
+        const heading = normalizeHeading(value);
+        slider.value = heading;
+        root.style.setProperty("--heading", heading + "deg");
+        headingValue.textContent = String(heading).padStart(3, "0") + " deg";
+        cardinalValue.textContent = getCardinalLabel(heading);
+      }
+
+      slider.addEventListener("input", (event) => {
+        setHeading(event.target.value);
+      });
+
+      presets.forEach((button) => {
+        button.addEventListener("click", () => {
+          setHeading(button.dataset.headingTarget);
+        });
+      });
+
+      setHeading(0);
+    </script>
+  </body>
+</html>

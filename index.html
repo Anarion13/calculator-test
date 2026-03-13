@@ -3,44 +3,69 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Web Calculator</title>
+    <title>Auxiliary Compute Console</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="app">
       <section class="calculator" aria-label="Calculator">
-        <div class="display" aria-live="polite">
-          <p class="display__history" data-history>0</p>
-          <output class="display__value" data-display>0</output>
+        <header class="calculator__header">
+          <div>
+            <p class="calculator__eyebrow">Weyland-Yutani // Nostromo systems</p>
+            <h1 class="calculator__title">Auxiliary Compute Console</h1>
+          </div>
+
+          <div class="status-lights" aria-label="System status indicators">
+            <span class="status-lights__dot status-lights__dot--active"></span>
+            <span class="status-lights__dot"></span>
+            <span class="status-lights__dot"></span>
+          </div>
+        </header>
+
+        <div class="display-shell">
+          <div class="display-labels" aria-hidden="true">
+            <span>CRT ACTIVE</span>
+            <span>SYS 937</span>
+          </div>
+
+          <div class="display" aria-live="polite">
+            <p class="display__history" data-history>0</p>
+            <output class="display__value" data-display>0</output>
+          </div>
         </div>
 
-        <div class="keys" role="group" aria-label="Calculator keys">
-          <button type="button" class="key key--function" data-action="clear">AC</button>
-          <button type="button" class="key key--function" data-action="toggle-sign">+/-</button>
-          <button type="button" class="key key--function" data-action="percent">%</button>
-          <button type="button" class="key key--operator" data-action="operator" data-value="/">/</button>
+        <div class="keys-frame">
+          <div class="keys" role="group" aria-label="Calculator keys">
+            <button type="button" class="key key--function" data-action="clear">AC</button>
+            <button type="button" class="key key--function" data-action="toggle-sign">+/-</button>
+            <button type="button" class="key key--function" data-action="percent">%</button>
+            <button type="button" class="key key--operator" data-action="operator" data-value="/">/</button>
 
-          <button type="button" class="key" data-action="digit" data-value="7">7</button>
-          <button type="button" class="key" data-action="digit" data-value="8">8</button>
-          <button type="button" class="key" data-action="digit" data-value="9">9</button>
-          <button type="button" class="key key--operator" data-action="operator" data-value="*">x</button>
+            <button type="button" class="key" data-action="digit" data-value="7">7</button>
+            <button type="button" class="key" data-action="digit" data-value="8">8</button>
+            <button type="button" class="key" data-action="digit" data-value="9">9</button>
+            <button type="button" class="key key--operator" data-action="operator" data-value="*">x</button>
 
-          <button type="button" class="key" data-action="digit" data-value="4">4</button>
-          <button type="button" class="key" data-action="digit" data-value="5">5</button>
-          <button type="button" class="key" data-action="digit" data-value="6">6</button>
-          <button type="button" class="key key--operator" data-action="operator" data-value="-">-</button>
+            <button type="button" class="key" data-action="digit" data-value="4">4</button>
+            <button type="button" class="key" data-action="digit" data-value="5">5</button>
+            <button type="button" class="key" data-action="digit" data-value="6">6</button>
+            <button type="button" class="key key--operator" data-action="operator" data-value="-">-</button>
 
-          <button type="button" class="key" data-action="digit" data-value="1">1</button>
-          <button type="button" class="key" data-action="digit" data-value="2">2</button>
-          <button type="button" class="key" data-action="digit" data-value="3">3</button>
-          <button type="button" class="key key--operator" data-action="operator" data-value="+">+</button>
+            <button type="button" class="key" data-action="digit" data-value="1">1</button>
+            <button type="button" class="key" data-action="digit" data-value="2">2</button>
+            <button type="button" class="key" data-action="digit" data-value="3">3</button>
+            <button type="button" class="key key--operator" data-action="operator" data-value="+">+</button>
 
-          <button type="button" class="key key--wide" data-action="digit" data-value="0">0</button>
-          <button type="button" class="key" data-action="decimal">.</button>
-          <button type="button" class="key key--operator" data-action="equals">=</button>
+            <button type="button" class="key key--wide" data-action="digit" data-value="0">0</button>
+            <button type="button" class="key" data-action="decimal">.</button>
+            <button type="button" class="key key--operator" data-action="equals">=</button>
+          </div>
         </div>
 
-        <p class="hint">Supports mouse clicks and keyboard input.</p>
+        <p class="hint">
+          <span class="hint__label">INPUT</span>
+          Mouse and keyboard enabled. Backspace deletes, Escape clears.
+        </p>
       </section>
     </main>
 
