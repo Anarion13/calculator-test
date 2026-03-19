@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Digital Compass</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Compass</h1>
+    </header>
+
+    <main>
+      <div class="compass-container">
+        <div class="compass-ring">
+          <div class="tick-marks" id="tickMarks"></div>
+          <div class="compass-face" id="compassFace">
+            <svg viewBox="0 0 300 300" class="compass-svg">
+              <defs>
+                <linearGradient id="needleNorth" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#ef4444"/>
+                  <stop offset="100%" stop-color="#dc2626"/>
+                </linearGradient>
+                <linearGradient id="needleSouth" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#e2e8f0"/>
+                  <stop offset="100%" stop-color="#94a3b8"/>
+                </linearGradient>
+                <filter id="needleShadow">
+                  <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+                </filter>
+              </defs>
+
+              <!-- Cardinal directions -->
+              <text x="150" y="38" class="cardinal cardinal-n">N</text>
+              <text x="270" y="155" class="cardinal">E</text>
+              <text x="150" y="275" class="cardinal">S</text>
+              <text x="30" y="155" class="cardinal">W</text>
+
+              <!-- Intercardinal directions -->
+              <text x="232" y="76" class="intercardinal">NE</text>
+              <text x="232" y="236" class="intercardinal">SE</text>
+              <text x="68" y="236" class="intercardinal">SW</text>
+              <text x="68" y="76" class="intercardinal">NW</text>
+
+              <!-- Needle -->
+              <g filter="url(#needleShadow)">
+                <polygon points="150,45 143,148 157,148" fill="url(#needleNorth)"/>
+                <polygon points="150,255 143,152 157,152" fill="url(#needleSouth)"/>
+              </g>
+
+              <!-- Center dot -->
+              <circle cx="150" cy="150" r="8" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+              <circle cx="150" cy="150" r="3" fill="#94a3b8"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- North indicator triangle -->
+        <div class="north-indicator">▼</div>
+      </div>
+
+      <div class="heading-display">
+        <span class="heading-degrees" id="headingDegrees">---</span>
+        <span class="heading-unit">°</span>
+        <span class="heading-direction" id="headingDirection">--</span>
+      </div>
+
+      <div class="coordinates" id="coordinates">
+        <span class="coord-label">Waiting for location...</span>
+      </div>
+    </main>
+
+    <div class="status-bar" id="statusBar">
+      <span class="status-dot"></span>
+      <span class="status-text">Initializing...</span>
+    </div>
+  </div>
+
+  <div class="permission-overlay" id="permissionOverlay">
+    <div class="permission-card">
+      <div class="permission-icon">🧭</div>
+      <h2>Enable Compass</h2>
+      <p>This app needs access to your device's orientation sensor and location to work as a compass.</p>
+      <button class="permission-btn" id="permissionBtn">Enable Compass</button>
+      <p class="permission-note">On desktop, a simulated compass will be shown.</p>
+    </div>
+  </div>
+
+  <script src="compass.js"></script>
+</body>
+</html>
