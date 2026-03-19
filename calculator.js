@@ -28,6 +28,7 @@ function trimDisplay(value) {
 
 export class Calculator {
   constructor() {
+    this.mode = "basic";
     this.clear();
   }
 
@@ -38,6 +39,90 @@ export class Calculator {
     this.waitingForOperand = false;
     this.justEvaluated = false;
     this.historyText = "0";
+  }
+
+  toggleMode() {
+    this.mode = this.mode === "basic" ? "scientific" : "basic";
+    return this.mode;
+  }
+
+  applyUnaryFunction(name, fn) {
+    this.resetAfterError();
+    const value = Number(this.currentValue);
+    const result = fn(value);
+    const displayInput = trimDisplay(this.currentValue);
+    this.currentValue = normalizeNumber(result);
+    this.historyText = `${name}(${displayInput})`;
+    this.justEvaluated = true;
+    this.waitingForOperand = false;
+  }
+
+  sin() {
+    this.applyUnaryFunction("sin", Math.sin);
+  }
+
+  cos() {
+    this.applyUnaryFunction("cos", Math.cos);
+  }
+
+  tan() {
+    this.applyUnaryFunction("tan", Math.tan);
+  }
+
+  ln() {
+    this.applyUnaryFunction("ln", (v) => (v <= 0 ? NaN : Math.log(v)));
+  }
+
+  log() {
+    this.applyUnaryFunction("log", (v) => (v <= 0 ? NaN : Math.log10(v)));
+  }
+
+  sqrt() {
+    this.applyUnaryFunction("\u221a", (v) => (v < 0 ? NaN : Math.sqrt(v)));
+  }
+
+  square() {
+    this.applyUnaryFunction("sqr", (v) => v * v);
+  }
+
+  reciprocal() {
+    this.applyUnaryFunction("1/", (v) => (v === 0 ? Infinity : 1 / v));
+  }
+
+  factorial() {
+    this.resetAfterError();
+    const value = Number(this.currentValue);
+    const displayInput = trimDisplay(this.currentValue);
+
+    if (!Number.isInteger(value) || value < 0 || value > 170) {
+      this.currentValue = "Error";
+      this.historyText = `fact(${displayInput})`;
+      this.justEvaluated = true;
+      return;
+    }
+
+    let result = 1;
+    for (let i = 2; i <= value; i++) {
+      result *= i;
+    }
+    this.currentValue = normalizeNumber(result);
+    this.historyText = `fact(${displayInput})`;
+    this.justEvaluated = true;
+    this.waitingForOperand = false;
+  }
+
+  insertConstant(name) {
+    this.resetAfterError();
+    const value = name === "pi" ? Math.PI : Math.E;
+    this.currentValue = normalizeNumber(value);
+    this.historyText = name === "pi" ? "\u03c0" : "e";
+    this.justEvaluated = true;
+    this.waitingForOperand = false;
+  }
+
+  power() {
+    this.resetAfterError();
+    this.chooseOperator("^");
   }
 
   resetAfterError() {
@@ -183,6 +268,8 @@ export class Calculator {
           return "Error";
         }
         return normalizeNumber(leftOperand / rightOperand);
+      case "^":
+        return normalizeNumber(Math.pow(leftOperand, rightOperand));
       default:
         return normalizeNumber(rightOperand);
     }

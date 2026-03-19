@@ -8,10 +8,33 @@
   </head>
   <body>
     <main class="app">
-      <section class="calculator" aria-label="Calculator">
+      <section class="calculator" aria-label="Calculator" data-calculator>
         <div class="display" aria-live="polite">
           <p class="display__history" data-history>0</p>
           <output class="display__value" data-display>0</output>
+        </div>
+
+        <div class="mode-switch">
+          <span class="mode-switch__label">Basic</span>
+          <button type="button" class="mode-switch__toggle" data-action="toggle-mode" aria-label="Toggle scientific mode" aria-pressed="false">
+            <span class="mode-switch__thumb"></span>
+          </button>
+          <span class="mode-switch__label">Scientific</span>
+        </div>
+
+        <div class="scientific-keys" role="group" aria-label="Scientific function keys" data-scientific-keys hidden>
+          <button type="button" class="key key--scientific" data-action="sin">sin</button>
+          <button type="button" class="key key--scientific" data-action="cos">cos</button>
+          <button type="button" class="key key--scientific" data-action="tan">tan</button>
+          <button type="button" class="key key--scientific" data-action="ln">ln</button>
+          <button type="button" class="key key--scientific" data-action="log">log</button>
+          <button type="button" class="key key--scientific" data-action="sqrt">&radic;</button>
+          <button type="button" class="key key--scientific" data-action="square">x&sup2;</button>
+          <button type="button" class="key key--scientific" data-action="power">x<sup>y</sup></button>
+          <button type="button" class="key key--scientific" data-action="factorial">n!</button>
+          <button type="button" class="key key--scientific" data-action="reciprocal">1/x</button>
+          <button type="button" class="key key--scientific" data-action="constant" data-value="pi">&pi;</button>
+          <button type="button" class="key key--scientific" data-action="constant" data-value="e">e</button>
         </div>
 
         <div class="keys" role="group" aria-label="Calculator keys">
