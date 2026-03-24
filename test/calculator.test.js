@@ -61,3 +61,32 @@ test("supports deleting digits before evaluation", () => {
 
   assert.equal(calculator.getDisplayValue(), "8");
 });
+
+test("computes square root for non-negative values", () => {
+  const calculator = new Calculator();
+
+  calculator.inputDigit("9");
+  calculator.sqrt();
+
+  assert.equal(calculator.getDisplayValue(), "3");
+});
+
+test("returns an error for square root of a negative number", () => {
+  const calculator = new Calculator();
+
+  calculator.inputDigit("4");
+  calculator.toggleSign();
+  calculator.sqrt();
+
+  assert.equal(calculator.getDisplayValue(), "Error");
+});
+
+test("squares the current value", () => {
+  const calculator = new Calculator();
+
+  calculator.inputDigit("1");
+  calculator.inputDigit("2");
+  calculator.square();
+
+  assert.equal(calculator.getDisplayValue(), "144");
+});

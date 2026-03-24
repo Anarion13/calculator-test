@@ -259,6 +259,14 @@ body::after {
   gap: 0.8rem;
 }
 
+.keys__spacer {
+  min-height: 4rem;
+  border-radius: 0.55rem;
+  border: 1px dashed rgba(103, 107, 97, 0.35);
+  background: rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+}
+
 .key {
   position: relative;
   min-height: 4rem;
@@ -373,6 +381,10 @@ body::after {
   }
 
   .key {
+    min-height: 3.5rem;
+  }
+
+  .keys__spacer {
     min-height: 3.5rem;
   }
 
