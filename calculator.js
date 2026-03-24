@@ -102,6 +102,39 @@ export class Calculator {
     }
   }
 
+  sqrt() {
+    this.resetAfterError();
+
+    const n = Number(this.currentValue);
+
+    if (n < 0) {
+      this.currentValue = "Error";
+      this.previousValue = null;
+      this.operator = null;
+      this.waitingForOperand = false;
+      this.justEvaluated = true;
+      this.historyText = "Calculation error";
+      return;
+    }
+
+    this.currentValue = normalizeNumber(Math.sqrt(n));
+    this.justEvaluated = false;
+    if (this.operator === null) {
+      this.historyText = trimDisplay(this.currentValue);
+    }
+  }
+
+  square() {
+    this.resetAfterError();
+
+    const n = Number(this.currentValue);
+    this.currentValue = normalizeNumber(n * n);
+    this.justEvaluated = false;
+    if (this.operator === null) {
+      this.historyText = trimDisplay(this.currentValue);
+    }
+  }
+
   deleteDigit() {
     this.resetAfterError();
 

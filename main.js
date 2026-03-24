@@ -33,6 +33,12 @@ function handleAction(action, value) {
     case "percent":
       calculator.percentage();
       break;
+    case "sqrt":
+      calculator.sqrt();
+      break;
+    case "square":
+      calculator.square();
+      break;
     case "delete":
       calculator.deleteDigit();
       break;
